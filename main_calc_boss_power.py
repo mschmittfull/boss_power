@@ -128,12 +128,13 @@ def main():
     poles = r.poles
     Nk = poles['k'].shape[0]
     mat = np.zeros((Nk, 4)) + np.nan
-    header = '# BOSS Sample: %s\n' % boss_sample
-    header += '# z=%g-%g\n' % (ZMIN, ZMAX)
-    header += '# Nmesh=%d\n' % cmd_args.Nmesh
+    header = 'boss_sample=%s\n' % boss_sample
+    header += 'ZMIN=%g\n' % ZMIN
+    header += 'ZMAX=%g\n' % ZMAX
+    header += 'Nmesh=%d\n' % cmd_args.Nmesh
     header += 'Ngalaxies: %d\n' % Ngalaxies
-    header += '# Raw spectra without any shot noise subtraction\n'
-    header += '# Columns: k, P_0, P_2, P_4'
+    header += 'Raw spectra without any shot noise subtraction\n'
+    header += 'Columns: k, P_0, P_2, P_4'
     mat[:,0] = poles['k']
     mat[:,1] = poles['power_0'].real
     mat[:,2] = poles['power_2'].real
