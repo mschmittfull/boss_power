@@ -20,7 +20,7 @@ def main():
     ap.add_argument('--Nmesh', default=64, type=int,
         help='Nmesh used to compute power spectrum.')
 
-    ap.add_argument('--download_dir', default='sdss_data/', 
+    ap.add_argument('--download_dir', default='$SCRATCH/lss/sdss_data/', 
         help='Where to store/read downloaded data.')
 
     default_sample = 'DR12v5_CMASSLOWZTOT_South'
@@ -48,7 +48,7 @@ def main():
     setup_logging()
 
     # download the data to the current directory
-    download_dir = cmd_args.download_dir
+    download_dir = os.path.expandvars(cmd_args.download_dir)
     boss_sample = cmd_args.boss_sample
     download_data(download_dir, boss_sample=boss_sample)
 
