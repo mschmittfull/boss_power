@@ -151,7 +151,8 @@ def main():
     mat[:,3] = poles['power_4'].real
     # save
     fname = os.path.join(cmd_args.out_dir, 
-        '%s_%s_Nmesh%d.txt' % (cmd_args.out_base, boss_sample, cmd_args.Nmesh))
+        '%s_%s_Nmesh%d_subtrShot%d.txt' % (cmd_args.out_base, boss_sample, cmd_args.Nmesh,
+            int(cmd_args.subtract_shot==True)))
     np.savetxt(fname, mat, header=header)
     print('Wrote %s' % fname)
 
@@ -171,7 +172,8 @@ def main():
         plt.xlim(0.01, 0.25)
 
         fname = os.path.join(cmd_args.out_dir, 
-            '%s_%s_Nmesh%d.pdf' % (cmd_args.out_base, boss_sample, cmd_args.Nmesh))
+            '%s_%s_Nmesh%d_subtrShot%d.pdf' % (cmd_args.out_base, boss_sample, cmd_args.Nmesh,
+                int(cmd_args.subtract_shot==True)))
         plt.savefig(fname)
         print('Made %s' % fname)
 
