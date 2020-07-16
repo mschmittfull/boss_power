@@ -132,7 +132,7 @@ def main():
     header += 'ZMIN=%g\n' % ZMIN
     header += 'ZMAX=%g\n' % ZMAX
     header += 'Nmesh=%d\n' % cmd_args.Nmesh
-    header += 'Ngalaxies: %d\n' % Ngalaxies
+    header += 'Ngalaxies=%d\n' % Ngalaxies
     header += 'Raw spectra without any shot noise subtraction\n'
     header += 'Columns: k, P_0, P_2, P_4'
     mat[:,0] = poles['k']
