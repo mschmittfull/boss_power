@@ -114,6 +114,10 @@ def main():
     for key in r.attrs:
         print("%s = %s" % (key, str(r.attrs[key])))
 
+    # save results
+    if not os.path.exists(cmd_args.out_dir):
+        os.makedirs(cmd_args.out_dir)
+
     # save power to file, in nbodykit format
     fname = os.path.join(cmd_args.out_dir, 
         '%s_%s_Nmesh%d.nbk.dat' % (cmd_args.out_base, boss_sample, cmd_args.Nmesh))
@@ -126,7 +130,7 @@ def main():
     mat = np.zeros((Nk, 4)) + np.nan
     header = '# BOSS Sample: %s\n' % boss_sample
     header += '# z=%g-%g\n' % (ZMIN, ZMAX)
-    header += '# Nmesh=%d\n' % Nmesh
+    header += '# Nmesh=%d\n' % cmd_args.Nmesh
     header += 'Ngalaxies: %d\n' % Ngalaxies
     header += '# Raw spectra without any shot noise subtraction\n'
     header += '# Columns: k, P_0, P_2, P_4'
