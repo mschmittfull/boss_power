@@ -34,7 +34,11 @@ def main():
     ap.add_argument('--out_base', default='power', 
         help='Prefix for where to store measured power spectrum.')
 
-    ap.add_argument('--plot', dest='plot', action='store_true')
+    ap.add_argument('--plot', dest='plot', action='store_true', 
+        help='Plot power spectra.')
+
+    ap.add_argument('--subtract_shot', dest='subtract_shot', action='store_true',
+        help='Subtract shot noise from monopole power spectrum.')
 
     cmd_args = ap.parse_args()
 
@@ -133,10 +137,16 @@ def main():
     header += 'ZMAX=%g\n' % ZMAX
     header += 'Nmesh=%d\n' % cmd_args.Nmesh
     header += 'Ngalaxies=%d\n' % Ngalaxies
-    header += 'Raw spectra without any shot noise subtraction\n'
+    if cmd_args.subtract_shot:
+        header += 'subtract_shot=True'
+    else:
+        header += 'subtract_shot=False'
     header += 'Columns: k, P_0, P_2, P_4'
     mat[:,0] = poles['k']
-    mat[:,1] = poles['power_0'].real
+    if cmd_args.subtract_shot:
+        mat[:,1] = poles['power_0'].real - r.attrs['shotnoise']
+    else:
+        mat[:,1] = poles['power_0'].real
     mat[:,2] = poles['power_2'].real
     mat[:,3] = poles['power_4'].real
     # save
@@ -150,7 +160,8 @@ def main():
         for ell in [0, 2, 4]:
             label = r'$\ell=%d$' % (ell)
             P = poles['power_%d' %ell].real
-            if ell == 0: P = P - r.attrs['shotnoise']
+            if cmd_args.subtract_shot:
+                if ell == 0: P = P - r.attrs['shotnoise']
             plt.plot(poles['k'], poles['k']*P, label=label)
 
         # format the axes
