@@ -49,6 +49,7 @@ def main():
 
     # download the data to the current directory
     download_dir = os.path.expandvars(cmd_args.download_dir)
+    print('download_dir:', download_dir)
     boss_sample = cmd_args.boss_sample
     download_data(download_dir, boss_sample=boss_sample)
 
@@ -68,10 +69,10 @@ def main():
     if boss_sample in ['DR12v5_LOWZ_South', 'DR12v5_LOWZ_North']:
         ZMIN = 0.15
         ZMAX = 0.43
-    elif boss_sample == ['DR12v5_CMASS_South', 'DR12v5_CMASS_North']:
+    elif boss_sample in ['DR12v5_CMASS_South', 'DR12v5_CMASS_North']:
         ZMIN = 0.43
         ZMAX = 0.7
-    elif boss_sample == ['DR12v5_CMASSLOWZTOT_South', 'DR12v5_CMASSLOWZTOT_North']:
+    elif boss_sample in ['DR12v5_CMASSLOWZTOT_South', 'DR12v5_CMASSLOWZTOT_North']:
         ZMIN = 0.5
         ZMAX = 0.75
     else:
@@ -85,7 +86,8 @@ def main():
     valid = (data['Z'] > ZMIN)&(data['Z'] < ZMAX)
     data = data[valid]
 
-    print('Ngalaxies:', data.csize)
+    Ngalaxies = data.csize
+    print('Ngalaxies:', Ngalaxies)
 
 
     # the fiducial BOSS DR12 cosmology
@@ -112,14 +114,31 @@ def main():
     for key in r.attrs:
         print("%s = %s" % (key, str(r.attrs[key])))
 
-    # save to file
+    # save power to file, in nbodykit format
     fname = os.path.join(cmd_args.out_dir, 
-        '%s_%s_Nmesh%d.txt' % (cmd_args.out_base, boss_sample, cmd_args.Nmesh))
+        '%s_%s_Nmesh%d.nbk.dat' % (cmd_args.out_base, boss_sample, cmd_args.Nmesh))
     r.save(fname)
     print('Wrote %s' % fname)
 
+    # Also save plain txt file
     poles = r.poles
-
+    Nk = poles['k'].shape[0]
+    mat = np.zeros((Nk, 4)) + np.nan
+    header = '# BOSS Sample: %s\n' % boss_sample
+    header += '# z=%g-%g\n' % (ZMIN, ZMAX)
+    header += '# Nmesh=%d\n' % Nmesh
+    header += 'Ngalaxies: %d\n' % Ngalaxies
+    header += '# Raw spectra without any shot noise subtraction\n'
+    header += '# Columns: k, P_0, P_2, P_4'
+    mat[:,0] = poles['k']
+    mat[:,1] = poles['power_0'].real
+    mat[:,2] = poles['power_2'].real
+    mat[:,3] = poles['power_4'].real
+    # save
+    fname = os.path.join(cmd_args.out_dir, 
+        '%s_%s_Nmesh%d.txt' % (cmd_args.out_base, boss_sample, cmd_args.Nmesh))
+    np.savetxt(fname, mat, header=header)
+    print('Wrote %s' % fname)
 
     if cmd_args.plot:
         # run code with --plot to plot
