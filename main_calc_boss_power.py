@@ -138,9 +138,9 @@ def main():
     header += 'Nmesh=%d\n' % cmd_args.Nmesh
     header += 'Ngalaxies=%d\n' % Ngalaxies
     if cmd_args.subtract_shot:
-        header += 'subtract_shot=True'
+        header += 'subtract_shot=True\n'
     else:
-        header += 'subtract_shot=False'
+        header += 'subtract_shot=False\n'
     header += 'Columns: k, P_0, P_2, P_4'
     mat[:,0] = poles['k']
     if cmd_args.subtract_shot:

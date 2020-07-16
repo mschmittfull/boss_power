@@ -15,4 +15,5 @@ boss_power
                                [--download_dir DOWNLOAD_DIR]
                                [--boss_sample BOSS_SAMPLE] [--out_dir OUT_DIR]
                                [--out_base OUT_BASE] [--plot]
+                               [--subtract_shot]
                                     
