@@ -26,7 +26,7 @@ export OMP_NUM_THREADS=2
 # (use half of allocated processors below so we can use 2 threads)
 
 # Options
-Nmesh=128
+Nmesh=1024
 BossSample='DR12v5_LOWZ_South'
 #BossSample='DR12v5_CMASS_South'
 
