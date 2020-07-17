@@ -1,9 +1,9 @@
 #!/bin/bash -l
 
 # # required time of job
-#SBATCH -t 48:00:00
+#SBATCH -t 04:00:00
 # # number of processors (helios has 28 cores per node; 896 is half cluster)
-#SBATCH -n 28
+#SBATCH -n 112
 #SBATCH --mem=120GB
 #SBATCH --export=ALL
 #SBATCH -V
@@ -27,12 +27,12 @@ export OMP_NUM_THREADS=2
 
 # Options
 Nmesh=1024
-BossSample='DR12v5_LOWZ_South'
+BossSample='DR12v5_CMASSLOWZTOT_North'
 #BossSample='DR12v5_CMASS_South'
 
 # Start the script
 conda activate nbodykit-0.3.7-env
 myscript=main_calc_boss_power.py_$(date +%s%N)
 cp main_calc_boss_power.py $myscript
-srun -n 14 python $myscript --Nmesh=$Nmesh --boss_sample=$BossSample
+srun -n 56 python $myscript --Nmesh=$Nmesh --boss_sample=$BossSample --subtract_shot
 conda deactivate
