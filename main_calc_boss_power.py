@@ -6,7 +6,7 @@ import os
 
 from nbodykit.lab import *
 from nbodykit import setup_logging
-
+from nbodykit import CurrentMPIComm
 
 
 def main():
@@ -53,13 +53,16 @@ def main():
         plt.style.use(style.notebook)
 
     setup_logging()
+    comm = CurrentMPIComm.get()
 
     # download the data to the current directory
     download_dir = os.path.expandvars(cmd_args.download_dir)
     print('download_dir:', download_dir)
     boss_sample = cmd_args.boss_sample
-    download_data(download_dir, boss_sample=boss_sample,
-        random_catalog_id=cmd_args.random_catalog_id)
+
+    if comm.rank == 0:
+        download_data(download_dir, boss_sample=boss_sample,
+            random_catalog_id=cmd_args.random_catalog_id)
 
     # NOTE: change this path if you downloaded the data somewhere else!
     data_path = os.path.join(download_dir, 'galaxy_%s.fits' % boss_sample)
