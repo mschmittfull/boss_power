@@ -27,7 +27,7 @@ export OMP_NUM_THREADS=2
 
 # Options
 Nmesh=1024
-BossSample='DR12v5_CMASSLOWZTOT_North'
+BossSample='DR12v5_CMASSLOWZTOT_South'
 #BossSample='DR12v5_CMASS_South'
 RandomID=1
 
