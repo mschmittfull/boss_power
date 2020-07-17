@@ -40,6 +40,9 @@ def main():
     ap.add_argument('--subtract_shot', dest='subtract_shot', action='store_true',
         help='Subtract shot noise from monopole power spectrum.')
 
+    ap.add_argument('--random_catalog_id', default=0, type=int,
+        help='Which random catalog to use.')
+
     cmd_args = ap.parse_args()
 
 
@@ -55,11 +58,13 @@ def main():
     download_dir = os.path.expandvars(cmd_args.download_dir)
     print('download_dir:', download_dir)
     boss_sample = cmd_args.boss_sample
-    download_data(download_dir, boss_sample=boss_sample)
+    download_data(download_dir, boss_sample=boss_sample,
+        random_catalog_id=cmd_args.random_catalog_id)
 
     # NOTE: change this path if you downloaded the data somewhere else!
     data_path = os.path.join(download_dir, 'galaxy_%s.fits' % boss_sample)
-    randoms_path = os.path.join(download_dir, 'random0_%s.fits' % boss_sample)
+    randoms_path = os.path.join(download_dir, 'random%d_%s.fits' % (
+        cmd_args.random_catalog_id, boss_sample))
 
     # initialize the FITS catalog objects for data and randoms
     data = FITSCatalog(data_path)
@@ -141,6 +146,7 @@ def main():
         header += 'subtract_shot=True\n'
     else:
         header += 'subtract_shot=False\n'
+    header += 'random_catalog_id=%d\n' % cmd_args.random_catalog_id
     header += 'Columns: k, P_0, P_2, P_4'
     mat[:,0] = poles['k']
     if cmd_args.subtract_shot:
@@ -150,9 +156,13 @@ def main():
     mat[:,2] = poles['power_2'].real
     mat[:,3] = poles['power_4'].real
     # save
-    fname = os.path.join(cmd_args.out_dir, 
-        '%s_%s_Nmesh%d_subtrShot%d.txt' % (cmd_args.out_base, boss_sample, cmd_args.Nmesh,
-            int(cmd_args.subtract_shot==True)))
+    out_file_base = os.path.join(cmd_args.out_dir, 
+        '%s_%s_Nmesh%d_subtrShot%d_randID%d' % (
+            cmd_args.out_base, boss_sample, cmd_args.Nmesh,
+            int(cmd_args.subtract_shot==True),
+            cmd_args.random_catalog_id
+            ))
+    fname = out_file_base + '.txt'
     np.savetxt(fname, mat, header=header)
     print('Wrote %s' % fname)
 
@@ -171,9 +181,7 @@ def main():
         plt.ylabel(r"$k \ P_\ell$ [$h^{-2} \ \mathrm{Mpc}^2$]")
         plt.xlim(0.01, 0.25)
 
-        fname = os.path.join(cmd_args.out_dir, 
-            '%s_%s_Nmesh%d_subtrShot%d.pdf' % (cmd_args.out_base, boss_sample, cmd_args.Nmesh,
-                int(cmd_args.subtract_shot==True)))
+        fname = out_file_base + '.pdf'
         plt.savefig(fname)
         print('Made %s' % fname)
 
@@ -188,7 +196,8 @@ def print_download_progress(count, block_size, total_size):
     sys.stdout.write(msg)
     sys.stdout.flush()
 
-def download_data(download_dir, boss_sample='DR12v5_LOWZ_South'):
+def download_data(download_dir, boss_sample='DR12v5_LOWZ_South',
+    random_catalog_id=0):
     """
     Download the FITS data needed for this notebook to the specified directory.
 
@@ -202,10 +211,11 @@ def download_data(download_dir, boss_sample='DR12v5_LOWZ_South'):
     import gzip
 
     urls = ['https://data.sdss.org/sas/dr12/boss/lss/galaxy_%s.fits.gz' % boss_sample,
-            'https://data.sdss.org/sas/dr12/boss/lss/random0_%s.fits.gz' % boss_sample]
+            'https://data.sdss.org/sas/dr12/boss/lss/random%d_%s.fits.gz' % (
+                random_catalog_id, boss_sample)]
 
     filenames = ['galaxy_%s.fits' % boss_sample, 
-                 'random0_%s.fits' % boss_sample]
+                 'random%d_%s.fits' % (random_catalog_id, boss_sample)]
 
     # download both files
     for i, url in enumerate(urls):

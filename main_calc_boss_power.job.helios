@@ -29,10 +29,11 @@ export OMP_NUM_THREADS=2
 Nmesh=1024
 BossSample='DR12v5_LOWZ_South'
 #BossSample='DR12v5_CMASS_South'
+RandomID=1
 
 # Start the script
 conda activate nbodykit-0.3.7-env
 myscript=main_calc_boss_power.py_$(date +%s%N)
 cp main_calc_boss_power.py $myscript
-srun -n 14 python $myscript --Nmesh=$Nmesh --boss_sample=$BossSample
+srun -n 14 python $myscript --Nmesh=$Nmesh --boss_sample=$BossSample --random_catalog_id=$RandomID
 conda deactivate
