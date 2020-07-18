@@ -101,6 +101,8 @@ def main():
     Ngalaxies = data.csize
     print('Ngalaxies:', Ngalaxies)
 
+    Nrandoms = randoms.csize
+    print('Nrandoms:', Nrandoms)
 
     # the fiducial BOSS DR12 cosmology
     cosmo = cosmology.Cosmology(h=0.676).match(Omega0_m=0.31)
