@@ -12,6 +12,7 @@ from nbodykit import CurrentMPIComm
 def main():
     """
     Measure BOSS power spectrum.
+    Based on https://nbodykit.readthedocs.io/en/latest/cookbook/boss-dr12-data.html.
     """
 
     # Parse command line arguments
