@@ -1,0 +1,45 @@
+#!/bin/bash -l
+
+# # required time of job
+#SBATCH -t 48:00:00
+# # number of processors (helios has 28 cores per node; 896 is half cluster)
+#SBATCH -n 112
+#SBATCH --mem=120GB
+#SBATCH --export=ALL
+#SBATCH -V
+#SBATCH --mail-user=mschmittfull@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH --output=slurm-%x.o%j
+#SBATCH --error=slurm-%x.e%j
+#SBATCH -J BOSSWindow
+#SBATCH --exclusive
+# #SBATCH --dependency=afterok:7780011
+
+set -x
+
+module load helios
+module load openmpi/1.10.7_gcc-4.8.5
+module load gsl/gcc-4.8.5/2.4
+
+export MPICH_GNI_MBOXES_PER_BLOCK=4096
+export OMP_NUM_THREADS=2
+# (use half of allocated processors below so we can use 2 threads)
+
+# Options
+BossSample='DR12v5_CMASSLOWZTOT_South'
+#BossSample='DR12v5_CMASS_South'
+RandomID1=1
+RandomID2=2
+rmin=10.0
+rmax=1000.0
+Nr=100
+Nmu=20
+SubsFraction=1.0
+
+# Start the script
+conda activate nbodykit-0.3.7-env
+myscript=main_calc_boss_window.py_$(date +%s%N)
+cp main_calc_boss_window.py $myscript
+srun -n 56 python $myscript --boss_sample=$BossSample --rmin=$rmin --rmax=$rmax --Nr=$Nr --Nmu=$Nmu --randoms1_catalog_id=$RandomID1 --randoms2_catalog_id=$RandomID2 --subsample_fraction=$SubsFraction
+
+conda deactivate
