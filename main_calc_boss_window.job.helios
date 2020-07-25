@@ -1,7 +1,7 @@
 #!/bin/bash -l
 
 # # required time of job
-#SBATCH -t 48:00:00
+#SBATCH -t 3-00:00:00
 # # number of processors (helios has 28 cores per node; 896 is half cluster)
 #SBATCH -n 112
 #SBATCH --mem=120GB
@@ -28,12 +28,12 @@ export OMP_NUM_THREADS=2
 # Options
 BossSample='DR12v5_CMASSLOWZTOT_South'
 #BossSample='DR12v5_CMASS_South'
-RandomID1=1
-RandomID2=2
-rmin=10.0
-rmax=1000.0
+RandomID1=0
+RandomID2=1
+rmin=1.0
+rmax=4000.0
 Nr=100
-Nmu=20
+Nmu=40
 SubsFraction=1.0
 
 # Start the script
