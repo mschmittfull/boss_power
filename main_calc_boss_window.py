@@ -67,13 +67,6 @@ def main():
 
     cmd_args = ap.parse_args()
 
-
-    # Setup things
-    if cmd_args.plot:
-        from nbodykit import style
-        import matplotlib.pyplot as plt
-        plt.style.use(style.notebook)
-
     setup_logging()
     comm = CurrentMPIComm.get()
 
