@@ -29,11 +29,11 @@ export OMP_NUM_THREADS=2
 BossSample='DR12v5_CMASSLOWZTOT_South'
 #BossSample='DR12v5_CMASS_South'
 RandomID1=0
-RandomID2=1
+RandomID2=0
 rmin=1.0
 rmax=4000.0
 Nr=100
-Nmu=40
+Nmu=200
 SubsFraction=1.0
 
 # Start the script
