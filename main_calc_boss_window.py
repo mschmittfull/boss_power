@@ -183,11 +183,11 @@ def main():
 
     # save window to file, in nbodykit format
     out_file_base = os.path.join(cmd_args.out_dir, 
-        '%s_%s_rmin%.1f_rmax%.1f_Nr%d_Nmu%d_randID1%d_randID2%d_SUB%g' % (
+        '%s_%s_rmin%.1f_rmax%.1f_Nr%d_Nmu%d_randID1%d_randID2%d_SUB%g_FKP%d' % (
             cmd_args.out_base, boss_sample, 
             cmd_args.rmin, cmd_args.rmax, cmd_args.Nr, cmd_args.Nmu,
             cmd_args.randoms1_catalog_id, cmd_args.randoms2_catalog_id,
-            cmd_args.subsample_fraction
+            cmd_args.subsample_fraction, cmd_args.FKP
             ))
 
     fname = '%s.nbk.dat' % out_file_base
