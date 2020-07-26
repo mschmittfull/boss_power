@@ -53,8 +53,8 @@ def main():
     ap.add_argument('--out_base', default='paircount', 
         help='Prefix for where to store measured window function.')
 
-    ap.add_argument('--plot', dest='plot', action='store_true', 
-        help='Plot window function.')
+    ap.add_argument('--FKP', default=0, type=int,
+        help='Include FKP weight.')
 
     ap.add_argument('--randoms1_catalog_id', default=0, type=int,
         help='ID for randoms1 catalog')
@@ -79,7 +79,8 @@ def main():
 
     # download the data to the current directory
     download_dir = os.path.expandvars(cmd_args.download_dir)
-    print('download_dir:', download_dir)
+    if comm.rank == 0:
+        print('download_dir:', download_dir)
     boss_sample = cmd_args.boss_sample
 
     if comm.rank == 0:
@@ -98,8 +99,9 @@ def main():
     randoms1 = FITSCatalog(randoms1_path)
     randoms2 = FITSCatalog(randoms2_path)
 
-    print('randoms1 columns = ', randoms1.columns)
-    print('randoms2 columns = ', randoms2.columns)
+    if comm.rank == 0:
+        print('randoms1 columns = ', randoms1.columns)
+        print('randoms2 columns = ', randoms2.columns)
 
 
     # Select redshift range
@@ -131,9 +133,21 @@ def main():
         randoms2 = randoms2[rr2[:,0] < cmd_args.subsample_fraction]
 
     Nrandoms1 = randoms1.csize
-    print('Nrandoms1:', Nrandoms1)
     Nrandoms2 = randoms2.csize
-    print('Nrandoms2:', Nrandoms2)
+    if comm.rank == 0:
+        print('Nrandoms1:', Nrandoms1)
+        print('Nrandoms2:', Nrandoms2)
+
+
+    # weights
+    if cmd_args.FKP == 0:
+        randoms1['Weight'] = 1.0
+        randoms2['Weight'] = 1.0
+    else:
+        randoms1['Weight'] = randoms1['WEIGHT_FKP']
+        randoms2['Weight'] = randoms2['WEIGHT_FKP']
+
+
 
     # the fiducial BOSS DR12 cosmology
     cosmo = cosmology.Cosmology(h=0.676).match(Omega0_m=0.31)
@@ -155,15 +169,17 @@ def main():
     if comm.rank == 0:
         print("Done pair count")
 
-    print('paircount', paircount)
-    for key in paircount.attrs:
-        print("%s = %s" % (key, str(paircount.attrs[key])))
+    if comm.rank == 0:
+        print('paircount', paircount)
+        for key in paircount.attrs:
+            print("%s = %s" % (key, str(paircount.attrs[key])))
 
 
 
     # save results
-    if not os.path.exists(cmd_args.out_dir):
-        os.makedirs(cmd_args.out_dir)
+    if comm.rank == 0:
+        if not os.path.exists(cmd_args.out_dir):
+            os.makedirs(cmd_args.out_dir)
 
     # save window to file, in nbodykit format
     out_file_base = os.path.join(cmd_args.out_dir, 
@@ -177,61 +193,6 @@ def main():
     fname = '%s.nbk.dat' % out_file_base
     paircount.save(fname)
     print('Wrote %s' % fname)
-
-    if False:
-        # Also save plain txt file
-        poles = r.poles
-        Nk = poles['k'].shape[0]
-        mat = np.zeros((Nk, 4)) + np.nan
-        header = 'boss_sample=%s\n' % boss_sample
-        header += 'ZMIN=%g\n' % ZMIN
-        header += 'ZMAX=%g\n' % ZMAX
-        header += 'Nmesh=%d\n' % cmd_args.Nmesh
-        header += 'Ngalaxies=%d\n' % Ngalaxies
-        if cmd_args.subtract_shot:
-            header += 'subtract_shot=True\n'
-        else:
-            header += 'subtract_shot=False\n'
-        header += 'random_catalog_id=%d\n' % cmd_args.random_catalog_id
-        header += 'Columns: k, P_0, P_2, P_4'
-        mat[:,0] = poles['k']
-        if cmd_args.subtract_shot:
-            mat[:,1] = poles['power_0'].real - r.attrs['shotnoise']
-        else:
-            mat[:,1] = poles['power_0'].real
-        mat[:,2] = poles['power_2'].real
-        mat[:,3] = poles['power_4'].real
-        # save
-        out_file_base = os.path.join(cmd_args.out_dir, 
-            '%s_%s_Nmesh%d_subtrShot%d_randID%d' % (
-                cmd_args.out_base, boss_sample, cmd_args.Nmesh,
-                int(cmd_args.subtract_shot==True),
-                cmd_args.random_catalog_id
-                ))
-        fname = out_file_base + '.txt'
-        np.savetxt(fname, mat, header=header)
-        print('Wrote %s' % fname)
-
-        if cmd_args.plot:
-            # run code with --plot to plot
-            for ell in [0, 2, 4]:
-                label = r'$\ell=%d$' % (ell)
-                P = poles['power_%d' %ell].real
-                if cmd_args.subtract_shot:
-                    if ell == 0: P = P - r.attrs['shotnoise']
-                plt.plot(poles['k'], poles['k']*P, label=label)
-
-            # format the axes
-            plt.legend(loc=0)
-            plt.xlabel(r"$k$ [$h \ \mathrm{Mpc}^{-1}$]")
-            plt.ylabel(r"$k \ P_\ell$ [$h^{-2} \ \mathrm{Mpc}^2$]")
-            plt.xlim(0.01, 0.25)
-
-            fname = out_file_base + '.pdf'
-            plt.savefig(fname)
-            print('Made %s' % fname)
-
-
 
 
 

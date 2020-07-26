@@ -29,17 +29,18 @@ export OMP_NUM_THREADS=2
 BossSample='DR12v5_CMASSLOWZTOT_South'
 #BossSample='DR12v5_CMASS_South'
 RandomID1=0
-RandomID2=0
+RandomID2=1
 rmin=1.0
 rmax=4000.0
 Nr=100
-Nmu=200
+Nmu=40
 SubsFraction=1.0
+FKP=1
 
 # Start the script
 conda activate nbodykit-0.3.7-env
 myscript=main_calc_boss_window.py_$(date +%s%N)
 cp main_calc_boss_window.py $myscript
-srun -n 56 python $myscript --boss_sample=$BossSample --rmin=$rmin --rmax=$rmax --Nr=$Nr --Nmu=$Nmu --randoms1_catalog_id=$RandomID1 --randoms2_catalog_id=$RandomID2 --subsample_fraction=$SubsFraction
+srun -n 56 python $myscript --boss_sample=$BossSample --rmin=$rmin --rmax=$rmax --Nr=$Nr --Nmu=$Nmu --randoms1_catalog_id=$RandomID1 --randoms2_catalog_id=$RandomID2 --subsample_fraction=$SubsFraction --FKP=$FKP
 
 conda deactivate
